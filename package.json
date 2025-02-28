@@ -22,6 +22,13 @@
     "@babel/preset-env": "^7.26.9",
     "babel-plugin-module-resolver": "^5.0.2",
     "dotenv": "^16.4.7",
-    "nodemon": "^3.1.9"
+    "eslint": "^8.57.1",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^10.0.2",
+    "eslint-define-config": "^2.1.0",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-prettier": "^5.2.3",
+    "nodemon": "^3.1.9",
+    "prettier": "^3.5.2"
   }
 }
