@@ -2,10 +2,10 @@
   "compilerOptions": {
     "target": "ES2022",
     "strict": true,
+    "module": "commonjs",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@servers/*": ["src/servers/*"]
+      "@/*": ["app/*"]
     }
   },
   "exclude": ["node_modules"]
