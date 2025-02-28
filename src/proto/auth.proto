@@ -1,0 +1,114 @@
+syntax = "proto3";
+
+package auth;
+
+import "google/protobuf/timestamp.proto";
+
+service AuthService {
+  rpc Login(LoginRequest) returns (LoginResponse) {};
+  rpc Register(RegisterRequest) returns (RegisterResponse) {};
+  rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse) {};
+  rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse) {};
+  rpc CheckPermission(PermissionCheckRequest) returns (PermissionCheckResponse) {};
+}
+
+// ================== Authentication ==================
+message LoginRequest {
+  string username_or_email = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  TokenPair tokens = 1;
+  User user = 2;
+  ErrorCode error = 3;
+}
+
+message RefreshTokenRequest {
+  string refresh_token = 1;
+}
+
+message RefreshTokenResponse {
+  TokenPair tokens = 1;
+  ErrorCode error = 2;
+}
+
+message TokenPair {
+  string access_token = 1;  // JWT token có thời hạn ngắn (15 phút)
+  string refresh_token = 2; // Token dài hạn (7 ngày) để renew access token
+  google.protobuf.Timestamp access_token_expires = 3;
+}
+
+// ================== Authorization ==================
+message PermissionCheckRequest {
+  string user_id = 1;
+  string resource = 2;  // Ví dụ: "article", "user", "product"
+  string action = 3;    // Ví dụ: "create", "read", "delete"
+}
+
+message PermissionCheckResponse {
+  bool allowed = 1;
+  AccessControlContext context = 2;
+}
+
+message AccessControlContext {
+  repeated string roles = 1;          // Danh sách vai trò của user
+  repeated Permission permissions = 2; // Chi tiết các quyền
+  
+  message Permission {
+    string resource = 1;
+    repeated string actions = 2; // Danh sách hành động được phép
+    repeated string attributes = 3; // Thuộc tính được truy cập
+  }
+}
+
+// ================== Common Messages ==================
+message ValidateTokenRequest {
+  string access_token = 1;
+}
+
+message ValidateTokenResponse {
+  bool is_valid = 1;
+  UserClaims claims = 2;
+}
+
+message UserClaims {
+  string user_id = 1;
+  repeated string roles = 2;        // Ví dụ: ["admin", "editor"]
+  repeated RolePermissions role_permissions = 3;
+  
+  message RolePermissions {
+    string role = 1;
+    repeated string resources = 2;
+  }
+}
+
+message RegisterRequest {
+  string username = 1;
+  string email = 2;
+  string password = 3;
+  repeated string initial_roles = 4; // Vai trò mặc định khi đăng ký
+}
+
+message RegisterResponse {
+  string user_id = 1;
+  bool success = 2;
+  repeated string errors = 3;
+}
+
+message User {
+  string id = 1;
+  string username = 2;
+  string email = 3;
+  repeated string roles = 4;
+  google.protobuf.Timestamp created_at = 5;
+}
+
+enum ErrorCode {
+  UNKNOWN_ERROR = 0;
+  INVALID_CREDENTIALS = 1;
+  INVALID_REFRESH_TOKEN = 2;
+  PERMISSION_DENIED = 3;
+  INSUFFICIENT_PERMISSIONS = 4;
+  // ... (giữ nguyên các error code khác)
+}
